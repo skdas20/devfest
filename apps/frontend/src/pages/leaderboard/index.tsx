@@ -3,12 +3,22 @@ import { getLeaderBoard } from '@frontend/queries/leaderboard';
 import Seo from '@frontend/components/seo/seo';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export default function Index(props: {
   leaderBoard: { id: string; name: string; score: number }[];
 }) {
   const { leaderBoard } = props;
   const router = useRouter();
+
+  // State to hold the search query
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Function to filter leaderboard based on the search query
+  const filteredLeaderboard = leaderBoard.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Wrapper>
       <Seo
@@ -19,6 +29,17 @@ export default function Index(props: {
         Leaderboard
       </h1>
 
+      {/* Search Bar */}
+      <div className="mb-6 flex justify-center">
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="p-2 border border-gray-300 rounded-lg"
+        />
+      </div>
+
       <div>
         <div className="flex flex-col w-full max-w-[800px] mx-auto gap-2.5">
           <div className="grid grid-cols-[100px,1fr,100px] rounded-[12px] bg-chatGrad h-[72px] px-[32px]">
@@ -26,7 +47,9 @@ export default function Index(props: {
             <div className="flex items-center">NAME</div>
             <div className="flex items-center">SCORE</div>
           </div>
-          {leaderBoard.map((p, index) => (
+
+          {/* Render filtered leaderboard */}
+          {filteredLeaderboard.map((p, index) => (
             <div
               onClick={() => router.push(`/leaderboard/${p.id}`)}
               key={p.id}
